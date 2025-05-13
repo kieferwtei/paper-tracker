@@ -86,6 +86,38 @@
   </style>
 </head>
 <body>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+  <h2 id="welcomeMessage">Welcome!</h2>
+ <button onclick="logout()"
+
+    background: #c62828;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  ">
+   Logout
+  </button>
+</div>
+<script>
+   function logout() {
+  localStorage.removeItem('currentUser');
+  window.location.href = "login-page.html"; // ✅ match your actual login file name
+}
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser}`;
+      } else {
+        window.location.href = "login-page.html"; // fallback if not logged in
+      }
+    });
+  </script>
+
   <div class="tracker-container">
 
     <h1>Paper Tracking System</h1>
