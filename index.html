@@ -86,12 +86,26 @@
     const password = document.querySelector('input[type="password"]').value;
 
     // ✅ Update this line with your correct credentials:
-    if (username === "admin" && password === "123") {
-      window.location.href = "paper-tracker.html";
-    } else {
-      alert("Incorrect username or password! Please try again!");
-    }
+    const users = [
+  { username: "staff1", password: "staff1234" },
+  { username: "staff2", password: "staff123" },
+  { username: "supervisor", password: "super123" }
+];
+
+function login(event) {
+  event.preventDefault();
+
+  const inputUser = document.querySelector('input[type="text"]').value;
+  const inputPass = document.querySelector('input[type="password"]').value;
+
+  const foundUser = users.find(u => u.username === inputUser && u.password === inputPass);
+
+  if (foundUser) {
+    window.location.href = "paper-tracker.html";
+  } else {
+    alert("Invalid username or password.");
   }
+}
 </script>
 
 </body>
