@@ -3,103 +3,178 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Page</title>
-   <link rel="icon" href="Caltex Logo.png" type="image/png">
+  <title>Paper Tracker</title>
+  <link rel="icon" href="Caltex Logo.png" type="image/png">
   <style>
-    
-  body {
-  font-family: Arial, sans-serif;
-  background: url('Caltex Background.jpeg') no-repeat center center fixed;
-  background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
+    .card {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem 2rem;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #c62828;
+  margin: 0.5rem;
 }
 
-    .login-container {
-  background: rgba(255, 255, 255, 0.9);
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    table, th, td {
+  background-color: white;
 }
-    .login-container h2 {
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+    }
+    h1 {
       text-align: center;
       color: #c62828;
-      margin-bottom: 1.5rem;
     }
-    input[type="text"],
-    input[type="password"] {
+    .tracker-container {
+      position: relative;
+      background: url('Caltex.jpg') no-repeat right center;
+      background-size: cover;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 1200px;
+      margin: 2rem auto;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    .tracker-container form,
+    .tracker-container table,
+    .tracker-container h1 {
+      position: relative;
+      z-index: 2;
+    }
+    
+    table {
       width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+    th, td {
       border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: #c62828;
+      color: white;
+    }
+    form {
+      margin-top: 2rem;
+      display: grid;
+      gap: 1rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    input, select {
+      padding: 0.5rem;
       font-size: 1rem;
     }
     button {
-      width: 100%;
       padding: 0.75rem;
-      background-color: #c62828;
+      background: #c62828;
       color: white;
       border: none;
-      border-radius: 5px;
-      font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
     }
     button:hover {
-      background-color: #a91b1b;
-    }
-    .forgot-password {
-      display: block;
-      text-align: right;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-    }
-    .forgot-password a {
-      color: #c62828;
-      text-decoration: none;
-    }
-    .forgot-password a:hover {
-      text-decoration: underline;
+      background: #a91b1b;
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Paper Tracking System</h2>
-    <form onsubmit="return login(event)">
-      <input type="text" placeholder="Username" required>
-      <input type="password" placeholder="Password" required>
-      <button type="submit">Login</button>
-      <div class="forgot-password">
-        <a href="#">Forgot Password?</a>
-      </div>
-    </form>
-  </div>
-  <script>
-    const users = [
-  { username: "staff1", password: "staff1234" },
-  { username: "staff2", password: "staff123" },
-  { username: "supervisor", password: "super123" }
-];
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+  <h2 id="welcomeMessage">Welcome!</h2>
+ <button onclick="logout()"
 
-function login(event) {
-  event.preventDefault();
-
-  const inputUser = document.querySelector('input[type="text"]').value;
-  const inputPass = document.querySelector('input[type="password"]').value;
-
-  const foundUser = users.find(u => u.username === inputUser && u.password === inputPass);
-
-  if (foundUser) {
-    window.location.href = "paper-tracker.html";
-  } else {
-    alert("Invalid username or password.");
-  }
+    background: #c62828;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  ">
+   Logout
+  </button>
+</div>
+<script>
+   function logout() {
+  localStorage.removeItem('currentUser');
+  window.location.href = "login-page.html"; // ✅ match your actual login file name
 }
-</script>
 
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser}`;
+      } else {
+        window.location.href = "login-page.html"; // fallback if not logged in
+      }
+    });
+  </script>
+
+  <div class="tracker-container">
+
+    <h1>Paper Tracking System</h1>
+
+<div id="dashboard" style="display: flex; justify-content: space-around; margin-top: 2rem; flex-wrap: wrap;">
+  <div class="card">Total: <span id="totalCount">0</span></div>
+  <div class="card">Received: <span id="receivedCount">0</span></div>
+  <div class="card">In Process: <span id="processCount">0</span></div>
+  <div class="card">Completed: <span id="completedCount">0</span></div>
+</div>
+
+    <form id="paperForm">
+
+      <input type="text" id="transmit" placeholder="Transmit Number" required>
+      <input type="text" id="docName" placeholder="Document Name" required>
+      <input type="text" id="owner" placeholder="Owner / Sender" required>
+      <input type="text" id="recipient" placeholder="Recipient / Department" required>
+      <input type="date" id="date" required>
+      <select id="status">
+        <option value="Received">Received</option>
+        <option value="In Process">In Process</option>
+        <option value="Completed">Completed</option>
+      </select>
+      <button type="submit">Add to Tracker</button>
+    </form>
+
+    <div style="text-align:center; margin-top: 1rem;">
+      <button onclick="exportToCSV()">📤 Export to Excel (CSV)</button>
+    </div>
+
+    <div style="text-align:center; margin-top: 2rem;">
+      <label for="statusFilter"><strong>Filter by Status:</strong></label>
+      <select id="statusFilter">
+        <option value="All">All</option>
+        <option value="Received">Received</option>
+        <option value="In Process">In Process</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+
+    <table id="trackingTable">
+      <thead>
+  <tr>
+    <th>Document Name</th>
+    <th>Owner / Sender</th>
+    <th>Recipient</th>
+    <th>Date</th>
+    <th>Status</th>
+    <th>Transmit Number</th>
+    <th>Action</th>
+  </tr>
+</thead>
+
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
