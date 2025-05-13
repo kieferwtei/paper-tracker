@@ -1,9 +1,9 @@
 const form = document.getElementById('paperForm');
 const tableBody = document.querySelector('#trackingTable tbody');
 const users = [
-  { username: "staff1", password: "staff1234" },
-  { username: "staff2", password: "staff123" },
-  { username: "supervisor", password: "super123" }
+ { username: "wteistaff1", password: "wtei_2025!" },
+  { username: "wteistaff2", password: "wtei_2025@" },
+  { username: "wteiadmin", password: "wtei_2025#" }
 ];
 
 function login(event) {
