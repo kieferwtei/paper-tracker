@@ -1,6 +1,33 @@
 const form = document.getElementById('paperForm');
 const tableBody = document.querySelector('#trackingTable tbody');
+const users = [
+  { username: "staff1", password: "staff1234" },
+  { username: "staff2", password: "staff123" },
+  { username: "supervisor", password: "super123" }
+];
 
+function login(event) {
+  event.preventDefault();
+
+  const inputUser = document.querySelector('input[type="text"]').value;
+  const inputPass = document.querySelector('input[type="password"]').value;
+
+  const foundUser = users.find(u => u.username === inputUser && u.password === inputPass);
+
+  if (foundUser) {
+    localStorage.setItem('currentUser', foundUser.username); // Store for dashboard
+    window.location.href = "paper-tracker.html"; // ✅ This should be the correct file
+  } else {
+    alert("Invalid username or password.");
+
+function logout() {
+  localStorage.removeItem('currentUser');
+  window.location.href = "login-page.html"; // ✅ match your actual login file name
+}
+
+}
+
+}
 function updateStatusCounts() {
   const data = JSON.parse(localStorage.getItem('paperTracker')) || [];
 
@@ -23,6 +50,15 @@ window.addEventListener('DOMContentLoaded', () => {
   updateStatusCounts(); // ✅ refresh counts
 });
 
+window.addEventListener('DOMContentLoaded', () => {
+  const currentUser = localStorage.getItem('currentUser');
+  if (currentUser) {
+    document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser}`;
+  } else {
+    // No session? Go back to login
+    window.location.href = "login-page.html";
+  }
+});
 
 // Handle form submission
 form.addEventListener('submit', function (e) {
