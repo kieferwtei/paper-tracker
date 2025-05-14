@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper Tracker</title>
+  <link rel="icon" href="Caltex Logo.png" type="image/png">
+  <style>
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem 2rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #c62828;
+      margin: 0.5rem;
+    }
+    table, th, td {
+      background-color: white;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #c62828;
+    }
+    .tracker-container {
+      position: relative;
+      background: url('Caltex.jpg') no-repeat right center;
+      background-size: cover;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 1200px;
+      margin: 2rem auto;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    .tracker-container form,
+    .tracker-container table,
+    .tracker-container h1 {
+      position: relative;
+      z-index: 2;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: #c62828;
+      color: white;
+    }
+    form {
+      margin-top: 2rem;
+      display: grid;
+      gap: 1rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    input, select {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.75rem;
+      background: #c62828;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #a91b1b;
+    }
+  </style>
+</head>
+<body>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2 id="welcomeMessage">Welcome!</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('currentUser');
+      window.location.href = "index.html";
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser}`;
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+
+  <div class="tracker-container">
+    <h1>Paper Tracking System</h1>
+
+    <div id="dashboard" style="display: flex; justify-content: space-around; margin-top: 2rem; flex-wrap: wrap;">
+      <div class="card">Total: <span id="totalCount">0</span></div>
+      <div class="card">Received: <span id="receivedCount">0</span></div>
+      <div class="card">In Process: <span id="processCount">0</span></div>
+      <div class="card">Completed: <span id="completedCount">0</span></div>
+    </div>
+
+    <form id="paperForm">
+      <input type="text" id="transmit" placeholder="Transmit Number" required>
+      <input type="text" id="docName" placeholder="Document Name" required>
+      <input type="text" id="owner" placeholder="Owner / Sender" required>
+      <input type="text" id="recipient" placeholder="Recipient / Department" required>
+      <input type="date" id="date" required>
+      <select id="status">
+        <option value="Received">Received</option>
+        <option value="In Process">In Process</option>
+        <option value="Completed">Completed</option>
+      </select>
+      <button type="submit">Add to Tracker</button>
+    </form>
+
+    <div style="text-align:center; margin-top: 1rem;">
+  <button onclick="exportToCSV()">📤 Export to Excel (CSV)</button>
+  <button onclick="deleteAllData()" style="background: #a91b1b;">🗑️ Delete All Documents</button>
+</div>
+
+
+    <div style="text-align:center; margin-top: 2rem;">
+      <label for="statusFilter"><strong>Filter by Status:</strong></label>
+      <select id="statusFilter">
+        <option value="All">All</option>
+        <option value="Received">Received</option>
+        <option value="In Process">In Process</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+
+    <table id="trackingTable">
+      <thead>
+        <tr>
+          <th>Document Name</th>
+          <th>Owner / Sender</th>
+          <th>Recipient</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Transmit Number</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
