@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>View Tracker - Paper Tracking System</title>
+  <link rel="icon" href="Caltex Logo.png" type="image/png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('Caltex Background.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      padding: 2rem;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tracker-container {
+      background: rgba(255, 255, 255, 0.95);
+      width: 90%;
+      max-width: 1400px;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    h2 {
+      color: #c62828;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .title-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+    th {
+      background-color: #c62828;
+      color: white;
+    }
+    .pdf-link {
+      color: #c62828;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    button.export-btn {
+      background-color: #c62828;
+      border: none;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 1rem auto;
+      display: block;
+    }
+    button.export-btn:hover {
+      background-color: #a91b1b;
+    }
+    button.back-btn {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+    button.back-btn:hover {
+      background-color: #45a049;
+    }
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+      align-items: center;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    select {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Check login session
+    if (localStorage.getItem("loggedIn") !== "true") {
+      window.location.href = "index.html";
+    }
+  </script>
+
+  <div class="tracker-container">
+    <div class="btn-group">
+      <button class="back-btn" onclick="goToIndex()">← Back to Home</button>
+      <button class="back-btn" onclick="logout()" style="background-color: #d32f2f;">Logout</button>
+    </div>
+    
+    <div class="title-section">
+      <h2>Paper Tracking System - View Tracker</h2>
+      <button class="export-btn" onclick="exportToCSV()">📤 Export to Excel (CSV)</button>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label for="statusFilter">Filter by Status:</label>
+        <select id="statusFilter" onchange="renderTracker()">
+          <option value="all">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="In Transit">In Transit</option>
+          <option value="Received">Received</option>
+          <option value="Declined">Declined</option>
+        </select>
+      </div>
+    </div>
+
+    <table aria-label="View Tracker Table">
+      <thead>
+        <tr>
+          <th>Document Name</th>
+          <th>Transmit Number</th>
+          <th>Sender</th>
+          <th>Recipient</th>
+          <th>Date Sent</th>
+          <th>Date Received</th>
+          <th>Status</th>
+          <th>View PDF</th>
+        </tr>
+      </thead>
+      <tbody id="trackerTableBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function goToIndex() {
+      window.location.href = 'index.html';
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("username");
+      window.location.href = "index.html";
+    }
+
+    function viewPDF(base64Content) {
+      if (!base64Content || !base64Content.startsWith('data:application/pdf')) {
+        alert('No PDF data found!');
+        return;
+      }
+      const pdfWindow = window.open();
+      pdfWindow.document.write(`<iframe width="100%" height="100%" style="border:none" src="${base64Content}"></iframe>`);
+    }
+
+    function renderTracker() {
+      const tbody = document.getElementById('trackerTableBody');
+      const statusFilter = document.getElementById('statusFilter').value;
+      tbody.innerHTML = '';
+      
+      let documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      
+      // Apply status filter
+      if (statusFilter !== 'all') {
+        documents = documents.filter(doc => doc.status === statusFilter);
+      }
+
+      if(documents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No documents found.</td></tr>';
+        return;
+      }
+
+      documents.forEach(doc => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${doc.docName}</td>
+          <td>${doc.transmitNumber}</td>
+          <td>${doc.sender || 'N/A'}</td>
+          <td>${doc.recipient}</td>
+          <td>${doc.date}</td>
+          <td>${doc.dateReceived || '-'}</td>
+          <td>${doc.status}</td>
+          <td><a href="#" class="pdf-link">View PDF</a></td>
+        `;
+        const pdfLink = tr.querySelector('.pdf-link');
+        pdfLink.addEventListener('click', e => {
+          e.preventDefault();
+          viewPDF(doc.fileContent);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportToCSV() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      let documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      
+      // Apply status filter to export
+      if (statusFilter !== 'all') {
+        documents = documents.filter(doc => doc.status === statusFilter);
+      }
+
+      if(documents.length === 0) {
+        alert('No documents to export!');
+        return;
+      }
+
+      const headers = ['Document Name','Transmit Number','Sender','Recipient','Date Sent','Date Received','Status'];
+      const csvRows = [headers.join(',')];
+
+      documents.forEach(doc => {
+        const row = [
+          `"${doc.docName}"`,
+          `"${doc.transmitNumber}"`,
+          `"${doc.sender || 'N/A'}"`,
+          `"${doc.recipient}"`,
+          `"${doc.date}"`,
+          `"${doc.dateReceived || ''}"`,
+          `"${doc.status}"`
+        ];
+        csvRows.push(row.join(','));
+      });
+
+      const csvString = csvRows.join('\n');
+      const blob = new Blob([csvString], {type: 'text/csv'});
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'paper-tracker.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener('DOMContentLoaded', renderTracker);
+  </script>
+</body>
+</html>
