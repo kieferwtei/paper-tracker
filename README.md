@@ -69,9 +69,9 @@ The system comes with the following default users:
 | wteistaff1 | wtei_2025!      | staff      |
 | wteistaff2 | wtei_2025@      | staff      |
 | wteiadmin  | wtei_2025#      | admin      |
-| accounting | accounting2025   | department |
-| purchasing | purchasing2025   | department |
-| engineering| engineering2025  | department |
+| sales | sales2025   | department |
+| hr | hr2025   | department |
+| cashier| cashier2025  | department |
 
 ## Storage Options
 
