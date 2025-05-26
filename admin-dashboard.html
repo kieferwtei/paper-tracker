@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="icon" href="Caltex Logo.png" type="image/png">
+    <script src="notifications.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('Caltex Background.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #c62828;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            flex: 1;
+        }
+
+        .back-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .logout-btn {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .add-dept-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #d32f2f;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .delete-btn:hover {
+            background-color: #b71c1c;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .confirm-delete-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .confirm-delete-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .confirm-delete-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .confirm-delete-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .confirm-delete-buttons .confirm {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .confirm-delete-buttons .cancel {
+            background-color: #757575;
+            color: white;
+        }
+
+        .dept-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .dept-controls select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .dept-controls .add-dept-btn {
+            flex: 0 0 auto;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: white;
+        }
+
+        .form-group select:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            border-color: #2196F3;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="btn-group">
+            <button class="back-btn" onclick="window.location.href='index.html'">Back to Home</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div id="welcomeMessage" class="welcome-message"></div>
+        <h2>Admin Dashboard</h2>
+
+        <div class="section">
+            <h3>Department Account Management</h3>
+            <div class="dept-controls">
+                <select id="departmentFilter" onchange="filterDepartmentAccounts()">
+                    <option value="all">All Departments</option>
+                    <option value="sales">Sales</option>
+                    <option value="hr">HR</option>
+                    <option value="cashier">Cashier</option>
+                </select>
+                <button class="add-dept-btn" onclick="showAddDepartmentModal()">Add New Account</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Department Name</th>
+                        <th>Account Name</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="departmentsTable">
+                    <!-- Departments will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h3>Document Management</h3>
+            <div class="filter-controls">
+                <select id="statusFilter" onchange="filterDocuments()">
+                    <option value="all">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Received">Received</option>
+                    <option value="Declined">Declined</option>
+                    <option value="In Transit">In Transit</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search documents..." onkeyup="filterDocuments()">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transmit Number</th>
+                        <th>Document Name</th>
+                        <th>Sender</th>
+                        <th>Recipient</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="documentsTable">
+                    <!-- Documents will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Department Modal -->
+    <div id="addDepartmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddDepartmentModal()">&times;</span>
+            <h3>Add New Department Account</h3>
+            <form id="addDepartmentForm" onsubmit="addDepartment(event)">
+                <div class="form-group">
+                    <label for="departmentName">Department:</label>
+                    <select id="departmentName" required>
+                        <option value="sales">Sales</option>
+                        <option value="hr">HR</option>
+                        <option value="cashier">Cashier</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="accountName">Account Name:</label>
+                    <input type="text" id="accountName" required placeholder="e.g., Sales Manager, HR Assistant">
+                </div>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" style="background-color: #4CAF50; color: white;">Add Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Confirm Delete Modal -->
+    <div id="confirmDeleteModal" class="confirm-delete-modal">
+        <div class="confirm-delete-content">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this document? This action cannot be undone.</p>
+            <div class="confirm-delete-buttons">
+                <button class="cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button class="confirm" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in and is admin
+        window.addEventListener('load', function() {
+            const username = localStorage.getItem('username');
+            const userRole = localStorage.getItem('userRole');
+            
+            if (!username || userRole !== 'admin') {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
+                initializeDepartments();
+                loadDocuments();
+            }
+        });
+
+        async function initializeDepartments() {
+            try {
+                const departments = await firebaseService.getDepartments();
+                
+                if (departments.length === 0) {
+                    // Initialize default departments if none exist
+                    const defaultDepartments = [
+                        {
+                            name: 'Sales',
+                            username: 'sales',
+                            password: 'sales123',
+                            role: 'department',
+                            allowedRecipients: ['hr', 'cashier', 'wteiadmin', 'sales'],
+                            isActive: true
+                        },
+                        {
+                            name: 'HR',
+                            username: 'hr',
+                            password: 'hr123',
+                            role: 'department',
+                            allowedRecipients: ['sales', 'cashier', 'wteiadmin', 'hr'],
+                            isActive: true
+                        },
+                        {
+                            name: 'Cashier',
+                            username: 'cashier',
+                            password: 'cashier123',
+                            role: 'department',
+                            allowedRecipients: ['sales', 'hr', 'wteiadmin', 'cashier'],
+                            isActive: true
+                        }
+                    ];
+
+                    for (const dept of defaultDepartments) {
+                        await firebaseService.saveDepartment(dept);
+                    }
+                }
+
+                displayDepartments();
+            } catch (error) {
+                console.error('Error initializing departments:', error);
+                alert('Error initializing departments. Please try again.');
+            }
+        }
+
+        async function displayDepartments() {
+            try {
+                const departments = await firebaseService.getDepartments();
+                const departmentsList = document.getElementById('departmentsList');
+                departmentsList.innerHTML = '';
+
+                departments.forEach(dept => {
+                    const deptElement = document.createElement('div');
+                    deptElement.className = 'department-item';
+                    deptElement.innerHTML = `
+                        <h3>${dept.name}</h3>
+                        <p>Username: ${dept.username}</p>
+                        <p>Status: ${dept.isActive ? 'Active' : 'Inactive'}</p>
+                        <button onclick="toggleDepartmentStatus('${dept.id}', ${!dept.isActive})">
+                            ${dept.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                    `;
+                    departmentsList.appendChild(deptElement);
+                });
+            } catch (error) {
+                console.error('Error displaying departments:', error);
+                alert('Error displaying departments. Please try again.');
+            }
+        }
+
+        async function toggleDepartmentStatus(departmentId, newStatus) {
+            try {
+                await firebaseService.updateDepartment(departmentId, { isActive: newStatus });
+                displayDepartments(); // Reload departments after status update
+            } catch (error) {
+                console.error('Error updating department status:', error);
+                alert('Error updating department status. Please try again.');
+            }
+        }
+
+        function loadDocuments() {
+            const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+            const tableBody = document.getElementById('documentsTable');
+            tableBody.innerHTML = '';
+
+            documents.forEach(doc => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${doc.transmitNumber}</td>
+                    <td>${doc.docName}</td>
+                    <td>${doc.sender}</td>
+                    <td>${doc.recipient}</td>
+                    <td>${doc.date}</td>
+                    <td>${doc.status}</td>
+                    <td>
+                        <button class="action-btn view-btn" onclick="viewDocument('${doc.transmitNumber}')">View</button>
+                        <button class="action-btn delete-btn" onclick="deleteDocument('${doc.transmitNumber}')">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterDocuments() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+            
+            const filteredDocs = documents.filter(doc => {
+                const matchesStatus = statusFilter === 'all' || doc.status === statusFilter;
+                const matchesSearch = doc.docName.toLowerCase().includes(searchInput) ||
+                                    doc.transmitNumber.toLowerCase().includes(searchInput) ||
+                                    doc.sender.toLowerCase().includes(searchInput) ||
+                                    doc.recipient.toLowerCase().includes(searchInput);
+                return matchesStatus && matchesSearch;
+            });
+
+            const tableBody = document.getElementById('documentsTable');
+            tableBody.innerHTML = '';
+
+            filteredDocs.forEach(doc => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${doc.transmitNumber}</td>
+                    <td>${doc.docName}</td>
+                    <td>${doc.sender}</td>
+                    <td>${doc.recipient}</td>
+                    <td>${doc.date}</td>
+                    <td>${doc.status}</td>
+                    <td>
+                        <button class="action-btn view-btn" onclick="viewDocument('${doc.transmitNumber}')">View</button>
+                        <button class="action-btn delete-btn" onclick="deleteDocument('${doc.transmitNumber}')">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function showAddDepartmentModal() {
+            document.getElementById('addDepartmentModal').style.display = 'block';
+        }
+
+        function closeAddDepartmentModal() {
+            document.getElementById('addDepartmentModal').style.display = 'none';
+        }
+
+        function addDepartment(event) {
+            event.preventDefault();
+            const departmentName = document.getElementById('departmentName').value;
+            const accountName = document.getElementById('accountName').value;
+            const username = document.getElementById('username').value.toLowerCase();
+            const password = document.getElementById('password').value;
+
+            // Validate input
+            if (!departmentName || !accountName || !username || !password) {
+                showNotification('All fields are required', 'error');
+                return;
+            }
+
+            // Check if username already exists
+            const departments = JSON.parse(localStorage.getItem('departments') || '[]');
+            if (departments.some(dept => dept.username === username)) {
+                showNotification('Username already exists', 'error');
+                return;
+            }
+
+            // Create new department account with full sending capabilities
+            const newDepartment = {
+                departmentName,
+                accountName,
+                username,
+                password,
+                status: 'Active',
+                isDefault: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                allowedRecipients: ['sales', 'hr', 'cashier', 'wteiadmin'] // Allow sending to all departments and admin
+            };
+
+            // Add new department and save to localStorage
+            departments.push(newDepartment);
+            localStorage.setItem('departments', JSON.stringify(departments));
+            
+            showNotification('Department account added successfully', 'success');
+            closeAddDepartmentModal();
+            loadDepartments();
+            document.getElementById('addDepartmentForm').reset();
+        }
+
+        function editDepartment(username) {
+            // Prevent editing of default accounts
+            const departments = JSON.parse(localStorage.getItem('departments') || '[]');
+            const dept = departments.find(d => d.username === username);
+            
+            if (!dept || dept.isDefault) {
+                showNotification('Cannot edit default department accounts', 'error');
+                return;
+            }
+
+            const newAccountName = prompt('Enter new account name:', dept.accountName);
+            if (!newAccountName) return;
+
+            const newPassword = prompt('Enter new password:', dept.password);
+            if (!newPassword) return;
+
+            dept.accountName = newAccountName;
+            dept.password = newPassword;
+            dept.updatedAt = new Date().toISOString();
+            localStorage.setItem('departments', JSON.stringify(departments));
+            showNotification('Department account updated successfully', 'success');
+            loadDepartments();
+        }
+
+        function resetPassword(username) {
+            // Prevent password reset of default accounts
+            const departments = JSON.parse(localStorage.getItem('departments') || '[]');
+            const dept = departments.find(d => d.username === username);
+            
+            if (!dept || dept.isDefault) {
+                showNotification('Cannot reset password for default department accounts', 'error');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to reset the password for ${username}?`)) {
+                const defaultPassword = username + '2025';
+                dept.password = defaultPassword;
+                dept.updatedAt = new Date().toISOString();
+                localStorage.setItem('departments', JSON.stringify(departments));
+                showNotification('Password reset successfully', 'success');
+                loadDepartments();
+            }
+        }
+
+        function deleteDepartment(username) {
+            // Prevent deletion of default accounts
+            const departments = JSON.parse(localStorage.getItem('departments') || '[]');
+            const dept = departments.find(d => d.username === username);
+            
+            if (!dept) {
+                showNotification('Department account not found', 'error');
+                return;
+            }
+            
+            if (dept.isDefault) {
+                showNotification('Cannot delete default department accounts', 'error');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete the department account ${username}? This action cannot be undone.`)) {
+                const updatedDepartments = departments.filter(d => d.username !== username);
+                localStorage.setItem('departments', JSON.stringify(updatedDepartments));
+                showNotification('Department account deleted successfully', 'success');
+                loadDepartments();
+            }
+        }
+
+        function viewDocument(transmitNumber) {
+            const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+            const document = documents.find(doc => doc.transmitNumber === transmitNumber);
+            if (document && document.fileContent) {
+                const pdfWindow = window.open();
+                pdfWindow.document.write(`<iframe width='100%' height='100%' src='${document.fileContent}'></iframe>`);
+            } else {
+                showNotification('Document not found', 'error');
+            }
+        }
+
+        function deleteDocument(transmitNumber) {
+            if (confirm('Are you sure you want to delete this document?')) {
+                const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+                const updatedDocuments = documents.filter(doc => doc.transmitNumber !== transmitNumber);
+                localStorage.setItem('documents', JSON.stringify(updatedDocuments));
+                showNotification('Document deleted successfully', 'success');
+                loadDocuments();
+            }
+        }
+
+        function showDeleteModal(transmitNumber) {
+            documentToDelete = transmitNumber;
+            document.getElementById('confirmDeleteModal').style.display = 'block';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('confirmDeleteModal').style.display = 'none';
+            documentToDelete = null;
+        }
+
+        function confirmDelete() {
+            if (documentToDelete) {
+                // Get documents from localStorage
+                const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+                
+                // Filter out the document to delete
+                const updatedDocuments = documents.filter(doc => doc.transmitNumber !== documentToDelete);
+                
+                // Save updated documents
+                localStorage.setItem('documents', JSON.stringify(updatedDocuments));
+                
+                // Show success message
+                showNotification('Document deleted successfully', 'success');
+                
+                // Reload documents table
+                loadDocuments();
+                
+                // Close modal
+                closeDeleteModal();
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmDeleteModal');
+            if (event.target === modal) {
+                closeDeleteModal();
+            }
+        }
+
+        function logout() {
+            // Save all necessary data before logout
+            const departments = localStorage.getItem('departments');
+            const documents = localStorage.getItem('documents');
+            
+            // Clear only login-related items
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('username');
+            localStorage.removeItem('lastNotificationCheck');
+            
+            // Restore the saved data
+            if (departments) {
+                localStorage.setItem('departments', departments);
+            }
+            if (documents) {
+                localStorage.setItem('documents', documents);
+            }
+            
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html> 

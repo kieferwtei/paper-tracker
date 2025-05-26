@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>View Tracker - Paper Tracking System</title>
+  <link rel="icon" href="Caltex Logo.png" type="image/png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('Caltex Background.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      padding: 2rem;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tracker-container {
+      background: rgba(255, 255, 255, 0.95);
+      width: 90%;
+      max-width: 1400px;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    h2 {
+      color: #c62828;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .title-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.6rem 1rem;
+      text-align: left;
+    }
+    th {
+      background-color: #c62828;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+    tr:hover {
+      background-color: rgba(198, 40, 40, 0.1);
+    }
+    .pdf-link {
+      color: #2196F3;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background-color: rgba(33, 150, 243, 0.1);
+    }
+    .pdf-link:hover {
+      background-color: rgba(33, 150, 243, 0.2);
+    }
+    button {
+      border: none;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .export-btn {
+      background-color: #4CAF50;
+      margin: 1rem auto;
+      display: block;
+    }
+    .export-btn:hover {
+      background-color: #45a049;
+    }
+    .back-btn {
+      background-color: #2196F3;
+      margin-bottom: 1rem;
+    }
+    .back-btn:hover {
+      background-color: #1976D2;
+    }
+    .logout-btn {
+      background-color: #d32f2f;
+    }
+    .logout-btn:hover {
+      background-color: #b71c1c;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .filter-group label {
+      font-weight: bold;
+      color: #333;
+    }
+    .filter-group select,
+    .filter-group input {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .filter-group input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .filter-group select:hover,
+    .filter-group input:hover {
+      border-color: #aaa;
+    }
+    .filter-group select:focus,
+    .filter-group input:focus {
+      border-color: #c62828;
+      outline: none;
+    }
+    .welcome-message {
+      background-color: rgba(76, 175, 80, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      margin: 10px 0;
+      color: #2e7d32;
+    }
+    .no-documents {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+      font-style: italic;
+      background-color: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      transition: background-color 0.3s;
+    }
+    .delete-btn:hover {
+      background-color: #c82333;
+    }
+    .admin-controls {
+      text-align: center;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="tracker-container">
+    <div class="btn-group">
+      <button class="back-btn" onclick="goToIndex()">← Back to Home</button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="title-section">
+      <h2>Paper Tracking System - View Tracker</h2>
+      <p id="welcomeMessage" class="welcome-message"></p>
+      <div class="admin-controls" id="adminControls" style="display: none; margin: 1rem 0;">
+        <button class="delete-btn" onclick="deleteAllDocuments()">Delete All Documents</button>
+      </div>
+      <button class="export-btn" onclick="exportToCSV()">📤 Export to Excel (CSV)</button>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label for="senderFilter">Filter by Sender:</label>
+        <select id="senderFilter" onchange="renderTracker()">
+          <option value="all">All Senders</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="receiverFilter">Filter by Receiver:</label>
+        <select id="receiverFilter" onchange="renderTracker()">
+          <option value="all">All Receivers</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="transmitSearch">Search Transmit Number:</label>
+        <input type="text" id="transmitSearch" onkeyup="renderTracker()" placeholder="Enter transmit number...">
+      </div>
+      <div class="filter-group">
+        <label for="statusFilter">Filter by Status:</label>
+        <select id="statusFilter" onchange="renderTracker()">
+          <option value="all">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="In Transit">In Transit</option>
+          <option value="Received">Received</option>
+          <option value="Declined">Declined</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="dateFilter">Filter by Date:</label>
+        <select id="dateFilter" onchange="renderTracker()">
+          <option value="all">All Dates</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+      </div>
+    </div>
+
+    <table aria-label="View Tracker Table">
+      <thead>
+        <tr>
+          <th>Document Name</th>
+          <th>Transmit Number</th>
+          <th>Sender</th>
+          <th>Recipient</th>
+          <th>Date Sent</th>
+          <th>Date Received</th>
+          <th>Status</th>
+          <th>View PDF</th>
+        </tr>
+      </thead>
+      <tbody id="trackerTableBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Check login session
+    const currentUser = localStorage.getItem("username");
+    const userRole = localStorage.getItem("userRole");
+    
+    if (!currentUser || !localStorage.getItem("loggedIn")) {
+      window.location.href = "index.html";
+    }
+
+    // Set welcome message based on role and show admin controls if admin
+    const welcomeMsg = document.getElementById('welcomeMessage');
+    welcomeMsg.textContent = `Logged in as: ${currentUser} (${userRole.charAt(0).toUpperCase() + userRole.slice(1)})`;
+    
+    // Show admin controls only for wteiadmin
+    if (currentUser === 'wteiadmin' && userRole === 'admin') {
+      document.getElementById('adminControls').style.display = 'block';
+    }
+
+    function deleteAllDocuments() {
+      // Show confirmation dialog
+      const confirmation = confirm('Are you sure you want to delete all documents? This action cannot be undone.');
+      
+      if (confirmation) {
+        // Double-check user is admin before proceeding
+        if (currentUser === 'wteiadmin' && userRole === 'admin') {
+          try {
+            // Remove documents from localStorage
+            localStorage.removeItem('documents');
+            
+            // Show success message
+            alert('All documents have been successfully deleted.');
+            
+            // Refresh the tracker display
+            renderTracker();
+          } catch (error) {
+            console.error('Error deleting documents:', error);
+            alert('An error occurred while deleting documents. Please try again.');
+          }
+        } else {
+          alert('You do not have permission to perform this action.');
+        }
+      }
+    }
+
+    function goToIndex() {
+      window.location.href = 'index.html';
+    }
+
+    function logout() {
+      // Save documents before logout
+      const documents = localStorage.getItem('documents');
+      
+      // Only remove login-related items
+      localStorage.removeItem('loggedIn');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('username');
+      
+      // Restore documents after clearing login data
+      if (documents) {
+        localStorage.setItem('documents', documents);
+      }
+      
+      window.location.href = "index.html";
+    }
+
+    function viewPDF(base64Content) {
+      if (!base64Content || !base64Content.startsWith('data:application/pdf')) {
+        alert('No PDF data found!');
+        return;
+      }
+      const pdfWindow = window.open();
+      pdfWindow.document.write(`<iframe width="100%" height="100%" style="border:none" src="${base64Content}"></iframe>`);
+    }
+
+    function filterByDate(documents, dateFilter) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const weekAgo = new Date(today);
+      weekAgo.setDate(today.getDate() - 7);
+      
+      const monthAgo = new Date(today);
+      monthAgo.setMonth(today.getMonth() - 1);
+
+      return documents.filter(doc => {
+        const docDate = new Date(doc.date);
+        docDate.setHours(0, 0, 0, 0);
+
+        switch(dateFilter) {
+          case 'today':
+            return docDate.getTime() === today.getTime();
+          case 'week':
+            return docDate >= weekAgo;
+          case 'month':
+            return docDate >= monthAgo;
+          default:
+            return true;
+        }
+      });
+    }
+
+    function renderTracker() {
+      const tbody = document.getElementById('trackerTableBody');
+      const statusFilter = document.getElementById('statusFilter').value;
+      const dateFilter = document.getElementById('dateFilter').value;
+      const senderFilter = document.getElementById('senderFilter').value;
+      const receiverFilter = document.getElementById('receiverFilter').value;
+      const transmitSearch = document.getElementById('transmitSearch').value.toLowerCase();
+      
+      tbody.innerHTML = '';
+      
+      let documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      console.log('All loaded documents:', documents); // Debug log
+      
+      // Update sender and receiver filter options
+      updateFilterOptions(documents);
+      
+      // Apply filters
+      if (statusFilter !== 'all') {
+        documents = documents.filter(doc => doc.status === statusFilter);
+      }
+      
+      if (senderFilter !== 'all') {
+        documents = documents.filter(doc => doc.sender.toLowerCase() === senderFilter.toLowerCase());
+      }
+      
+      if (receiverFilter !== 'all') {
+        documents = documents.filter(doc => doc.recipient.toLowerCase() === receiverFilter.toLowerCase());
+      }
+      
+      if (transmitSearch) {
+        documents = documents.filter(doc => 
+          doc.transmitNumber.toLowerCase().includes(transmitSearch)
+        );
+      }
+      
+      // Apply date filter
+      documents = filterByDate(documents, dateFilter);
+
+      // Sort documents by date, newest first
+      documents.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      if(documents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="no-documents">No documents found matching the selected filters.</td></tr>';
+        return;
+      }
+
+      // Filter documents based on user role
+      if (userRole === 'department') {
+        // Department users see documents they sent or received
+        documents = documents.filter(doc => 
+          doc.sender.toLowerCase() === currentUser.toLowerCase() || 
+          doc.recipient.toLowerCase() === currentUser.toLowerCase()
+        );
+      } else if (userRole === 'admin') {
+        // Admin sees all documents
+        documents = documents;
+      } else if (userRole === 'staff') {
+        // Staff see documents they sent or received
+        documents = documents.filter(doc => 
+          doc.sender.toLowerCase() === currentUser.toLowerCase() || 
+          doc.recipient.toLowerCase() === currentUser.toLowerCase()
+        );
+      }
+
+      documents.forEach(doc => {
+        const tr = document.createElement('tr');
+        
+        // Highlight row based on status
+        switch(doc.status) {
+          case 'Pending':
+            tr.style.backgroundColor = 'rgba(255, 244, 229, 0.9)'; // Light orange
+            break;
+          case 'Received':
+            tr.style.backgroundColor = 'rgba(232, 245, 233, 0.9)'; // Light green
+            break;
+          case 'Declined':
+            tr.style.backgroundColor = 'rgba(255, 235, 238, 0.9)'; // Light red
+            break;
+          case 'In Transit':
+            tr.style.backgroundColor = 'rgba(227, 242, 253, 0.9)'; // Light blue
+            break;
+        }
+        
+        tr.innerHTML = `
+          <td>${doc.docName}</td>
+          <td>${doc.transmitNumber}</td>
+          <td>${doc.sender || 'N/A'}</td>
+          <td>${doc.recipient}</td>
+          <td>${doc.date}</td>
+          <td>${doc.dateReceived || '-'}</td>
+          <td>
+            <span class="status-badge status-${doc.status.toLowerCase()}">${doc.status}</span>
+          </td>
+          <td><a href="#" class="pdf-link">View PDF</a></td>
+        `;
+        
+        const pdfLink = tr.querySelector('.pdf-link');
+        pdfLink.addEventListener('click', e => {
+          e.preventDefault();
+          viewPDF(doc.fileContent);
+        });
+        tbody.appendChild(tr);
+      });
+
+      // Update document count in the header
+      const totalDocs = documents.length;
+      const pendingDocs = documents.filter(doc => doc.status === 'Pending').length;
+      const receivedDocs = documents.filter(doc => doc.status === 'Received').length;
+      
+      const statsHtml = `
+        <div class="document-stats">
+          <span>Total: ${totalDocs}</span>
+          <span>Pending: ${pendingDocs}</span>
+          <span>Received: ${receivedDocs}</span>
+        </div>
+      `;
+      
+      document.querySelector('.title-section').insertAdjacentHTML('beforeend', statsHtml);
+    }
+
+    function updateStatus(transmitNumber, newStatus) {
+      const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      const docIndex = documents.findIndex(doc => doc.transmitNumber === transmitNumber);
+      
+      if (docIndex !== -1) {
+        documents[docIndex].status = newStatus;
+        
+        // Update date received when status changes to Received
+        if (newStatus === 'Received') {
+          documents[docIndex].dateReceived = new Date().toISOString().split('T')[0];
+        } else {
+          documents[docIndex].dateReceived = '-';
+        }
+        
+        localStorage.setItem('documents', JSON.stringify(documents));
+        console.log('Document status updated:', documents[docIndex]); // Debug log
+        renderTracker(); // Refresh the display
+      }
+    }
+
+    function exportToCSV() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const dateFilter = document.getElementById('dateFilter').value;
+      let documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      
+      // Apply filters before export
+      documents = filterByDate(documents, dateFilter);
+      if (statusFilter !== 'all') {
+        documents = documents.filter(doc => doc.status === statusFilter);
+      }
+
+      if(documents.length === 0) {
+        alert('No documents to export!');
+        return;
+      }
+
+      const header = ['Document Name', 'Transmit Number', 'Sender', 'Recipient', 'Date Sent', 'Date Received', 'Status'];
+      const rows = documents.map(doc => [
+        doc.docName,
+        doc.transmitNumber,
+        doc.sender || 'N/A',
+        doc.recipient,
+        doc.date,
+        doc.dateReceived || '-',
+        doc.status
+      ]);
+
+      let csvContent = "data:text/csv;charset=utf-8," + header.join(",") + "\n";
+      rows.forEach(row => {
+        csvContent += row.join(",") + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      const fileName = `document_tracker_${new Date().toISOString().split('T')[0]}.csv`;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    // Function to update filter options
+    function updateFilterOptions(documents) {
+      const senderFilter = document.getElementById('senderFilter');
+      const receiverFilter = document.getElementById('receiverFilter');
+      
+      // Get unique senders and receivers
+      const senders = [...new Set(documents.map(doc => doc.sender))].sort();
+      const receivers = [...new Set(documents.map(doc => doc.recipient))].sort();
+      
+      // Save current selections
+      const currentSender = senderFilter.value;
+      const currentReceiver = receiverFilter.value;
+      
+      // Clear existing options except "All"
+      senderFilter.innerHTML = '<option value="all">All Senders</option>';
+      receiverFilter.innerHTML = '<option value="all">All Receivers</option>';
+      
+      // Add sender options
+      senders.forEach(sender => {
+        const option = document.createElement('option');
+        option.value = sender;
+        option.textContent = sender.charAt(0).toUpperCase() + sender.slice(1);
+        senderFilter.appendChild(option);
+      });
+      
+      // Add receiver options
+      receivers.forEach(receiver => {
+        const option = document.createElement('option');
+        option.value = receiver;
+        option.textContent = receiver.charAt(0).toUpperCase() + receiver.slice(1);
+        receiverFilter.appendChild(option);
+      });
+      
+      // Restore selections if they still exist in the new options
+      if (senders.includes(currentSender)) senderFilter.value = currentSender;
+      if (receivers.includes(currentReceiver)) receiverFilter.value = currentReceiver;
+    }
+
+    // Initial render
+    renderTracker();
+  </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Send Document</title>
+  <link rel="icon" href="Caltex Logo.png" type="image/png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('Caltex Background.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .sender-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 80%;
+      max-width: 1200px;
+      margin-top: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #c62828;
+      margin-bottom: 1.5rem;
+    }
+    input[type="text"], input[type="file"], select {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #c62828;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #a91b1b;
+    }
+    .back-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .back-btn:hover {
+      background-color: #45a049;
+    }
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .btn-group button {
+      width: 48%;
+    }
+    .welcome-message {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="sender-container">
+    <div class="btn-group">
+      <button class="back-btn" onclick="window.history.back()">Back</button>
+      <button class="back-btn" onclick="logout()" style="background-color: #d32f2f;">Logout</button>
+    </div>
+
+    <div id="welcomeMessage" class="welcome-message"></div>
+    <h2>Send Document</h2>
+
+    <form id="senderForm">
+      <div class="form-group">
+        <label for="docName">Document Name:</label>
+        <input type="text" id="docName" required>
+      </div>
+      <div class="form-group">
+        <label for="transmitNumber">Transmit Number:</label>
+        <input type="text" id="transmitNumber" required>
+      </div>
+      <div class="form-group">
+        <label for="recipient">Send To:</label>
+        <select id="recipient" required></select>
+      </div>
+      <div class="form-group">
+        <label for="file">Upload PDF:</label>
+        <input type="file" id="file" accept=".pdf" required>
+      </div>
+      <button type="submit">Send Document</button>
+    </form>
+  </div>
+
+  <script>
+    // Initialize default departments if they don't exist
+    function initializeDepartments() {
+      const departments = JSON.parse(localStorage.getItem('departments') || '[]');
+      if (departments.length === 0) {
+        const defaultDepartments = [
+          { 
+            departmentName: 'Sales', 
+            accountName: 'Sales Manager', 
+            username: 'sales', 
+            password: 'sales2025', 
+            status: 'Active',
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          { 
+            departmentName: 'HR', 
+            accountName: 'HR Manager', 
+            username: 'hr', 
+            password: 'hr2025', 
+            status: 'Active',
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          { 
+            departmentName: 'Cashier', 
+            accountName: 'Cashier Manager', 
+            username: 'cashier', 
+            password: 'cashier2025', 
+            status: 'Active',
+            isDefault: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        ];
+        localStorage.setItem('departments', JSON.stringify(defaultDepartments));
+        return defaultDepartments;
+      }
+      return departments;
+    }
+
+    function populateRecipientDropdown() {
+      const departments = initializeDepartments();
+      const recipientSelect = document.getElementById('recipient');
+      recipientSelect.innerHTML = '';
+
+      // Case-insensitive status check
+      const activeDepartments = departments.filter(dept => dept.status.toLowerCase() === 'active');
+
+      if (activeDepartments.length === 0) {
+        const noOption = document.createElement('option');
+        noOption.value = '';
+        noOption.textContent = 'No recipients available';
+        recipientSelect.appendChild(noOption);
+        recipientSelect.disabled = true;
+        return;
+      }
+
+      recipientSelect.disabled = false;
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Select Department';
+      recipientSelect.appendChild(defaultOption);
+
+      // Add Admin as an option first
+      const adminOption = document.createElement('option');
+      adminOption.value = 'wteiadmin';
+      adminOption.textContent = 'Admin';
+      recipientSelect.appendChild(adminOption);
+
+      // Add all active departments
+      activeDepartments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept.username.toLowerCase();
+        option.textContent = dept.departmentName;
+        recipientSelect.appendChild(option);
+      });
+    }
+
+    // Check login session and role
+    const username = localStorage.getItem('username');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (!username || (userRole !== 'staff' && userRole !== 'admin' && userRole !== 'department')) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
+      populateRecipientDropdown();
+    }
+
+    function logout() {
+      // Save documents before logout
+      const documents = localStorage.getItem('documents');
+      
+      // Only remove login-related items
+      localStorage.removeItem('loggedIn');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('username');
+      
+      // Restore documents after clearing login data
+      if (documents) {
+        localStorage.setItem('documents', documents);
+      }
+      
+      window.location.href = 'index.html';
+    }
+  </script>
+
+  <!-- Load the sender.js file after the DOM is ready -->
+  <script src="sender.js"></script>
+</body>
+</html>
