@@ -1,64 +1,63 @@
 # Paper Tracking System
 
-A document management system for tracking and managing paper documents between departments.
+A real-time document tracking system built with Firebase.
 
 ## Features
 
-- Secure document storage with PostgreSQL and AWS S3/local file system
-- User authentication and role-based access control
-- Real-time document status tracking
-- Document history and audit trail
-- Export functionality to CSV
-- Support for PDF documents
+- Real-time document tracking
+- Department management
+- User authentication
+- File upload and storage
+- Real-time notifications
 
-## Prerequisites
+## Deployment
 
-- Node.js 14+ and npm
-- PostgreSQL 12+
-- AWS S3 bucket (optional, for S3 storage)
+1. Fork this repository
+2. Enable GitHub Pages in your repository settings
+3. Configure Firebase:
+   - Create a new Firebase project
+   - Enable Authentication, Firestore, and Storage
+   - Add your GitHub Pages domain to authorized domains
+4. Update Firebase configuration in `firebase-config.js`
+5. Push to GitHub to trigger automatic deployment
 
-## Setup
+## Local Development
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd paper-tracking-system
-   ```
+```bash
+# Install dependencies
+npm install
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+# Run development server
+npm run dev
 
-3. Create a `.env` file based on `.env.example`:
-   ```bash
-   cp .env.example .env
-   ```
+# Build for production
+npm run build
 
-4. Update the `.env` file with your configuration:
-   - Database credentials
-   - Session secret
-   - Storage configuration (local or S3)
-   - AWS credentials (if using S3)
+# Deploy to GitHub Pages
+npm run deploy
+```
 
-5. Create the database:
-   ```bash
-   createdb paper_tracking
-   ```
+## Firebase Configuration
 
-6. Run database migrations:
-   ```bash
-   npm run migrate
-   ```
+Make sure to update the Firebase configuration in `firebase-config.js` with your project's credentials:
 
-7. Start the server:
-   ```bash
-   # Development mode with auto-reload
-   npm run dev
+```javascript
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "your-sender-id",
+  appId: "your-app-id"
+};
+```
 
-   # Production mode
-   npm start
-   ```
+## Security
+
+- All Firebase services are protected by security rules
+- User authentication is required for all operations
+- File uploads are restricted to authorized users
+- Real-time updates are filtered based on user permissions
 
 ## Default Users
 
@@ -66,7 +65,7 @@ The system comes with the following default users:
 
 | Username | Password     | Role       |
 |----------|-------------|------------|
-| admin    | admin2025   | admin      |
+| wteiadmin| wtei_2025#  | admin      |
 | sales    | sales2025   | department |
 | hr       | hr2025      | department |
 | cashier  | cashier2025 | department |
@@ -115,15 +114,6 @@ The project uses ESLint for code style. Run:
 ```bash
 npm run lint
 ```
-
-## Security
-
-- All passwords are hashed using bcrypt
-- Session management with express-session
-- Role-based access control
-- Input validation and sanitization
-- File type validation for uploads
-- Secure file storage options
 
 ## License
 

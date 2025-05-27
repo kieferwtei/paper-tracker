@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Send Document</title>
+  <link rel="icon" href="Caltex Logo.png" type="image/png" />
+  <script src="notifications.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('Caltex Background.jpeg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sender-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 1200px;
+    }
+    h2 {
+      text-align: center;
+      color: #c62828;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
+    }
+    input[type="text"], 
+    input[type="file"], 
+    select {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+      color: white;
+    }
+    .back-btn {
+      background-color: #2196F3;
+    }
+    .back-btn:hover {
+      background-color: #1976D2;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .logout-btn {
+      background-color: #f44336;
+    }
+    .logout-btn:hover {
+      background-color: #d32f2f;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .submit-btn {
+      background-color: #4CAF50;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    .submit-btn:hover {
+      background-color: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      color: white;
+    }
+    .view-btn {
+      background-color: #2196F3;
+    }
+    .view-btn:hover {
+      background-color: #1976D2;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .download-btn {
+      background-color: #4CAF50;
+    }
+    .download-btn:hover {
+      background-color: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .welcome-message {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      padding: 0.5rem;
+      background-color: rgba(76, 175, 80, 0.1);
+      border-radius: 4px;
+    }
+    .recent-documents {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    .recent-documents h3 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+    .document-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .document-item {
+      padding: 0.75rem;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .document-item:last-child {
+      border-bottom: none;
+    }
+    .document-info {
+      flex: 1;
+    }
+    .document-status {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin-left: 1rem;
+    }
+    .status-pending {
+      background-color: #fff3e0;
+      color: #e65100;
+    }
+    .status-received {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+    .error-message {
+      color: #d32f2f;
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="sender-container">
+    <div class="btn-group">
+      <button class="back-btn" onclick="handleBack()">← Back</button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="welcomeMessage" class="welcome-message"></div>
+    <h2>Send Document</h2>
+
+    <form id="senderForm" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label for="docName">Document Name:</label>
+        <input type="text" id="docName" required placeholder="Enter document name">
+        <div id="docNameError" class="error-message"></div>
+      </div>
+      <div class="form-group">
+        <label for="transmitNumber">Transmit Number:</label>
+        <input type="text" id="transmitNumber" required placeholder="Enter transmit number">
+        <div id="transmitNumberError" class="error-message"></div>
+      </div>
+      <div class="form-group">
+        <label for="recipient">Send To:</label>
+        <select id="recipient" required>
+          <option value="">Select Department</option>
+        </select>
+        <div id="recipientError" class="error-message"></div>
+      </div>
+      <div class="form-group">
+        <label for="file">Upload PDF:</label>
+        <input type="file" id="file" accept=".pdf" required>
+        <div id="fileError" class="error-message"></div>
+      </div>
+      <button type="submit" class="submit-btn">Send Document</button>
+    </form>
+
+    <div class="recent-documents">
+      <h3>Recent Documents</h3>
+      <div id="recentDocumentsList" class="document-list">
+        <!-- Recent documents will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="sender.js" type="module"></script>
+  <script>
+    // Initialize default departments if they don't exist
+    function initializeDepartments() {
+      const departments = JSON.parse(localStorage.getItem('departments') || '[]');
+      if (departments.length === 0) {
+        const defaultDepartments = [
+          { 
+            departmentName: 'Sales', 
+            accountName: 'Sales Manager', 
+            username: 'sales', 
+            password: 'sales2025', 
+            status: 'Active',
+            isDefault: true,
+            role: 'department',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          { 
+            departmentName: 'HR', 
+            accountName: 'HR Manager', 
+            username: 'hr', 
+            password: 'hr2025', 
+            status: 'Active',
+            isDefault: true,
+            role: 'department',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          { 
+            departmentName: 'Cashier', 
+            accountName: 'Cashier Manager', 
+            username: 'cashier', 
+            password: 'cashier2025', 
+            status: 'Active',
+            isDefault: true,
+            role: 'department',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        ];
+        localStorage.setItem('departments', JSON.stringify(defaultDepartments));
+        return defaultDepartments;
+      }
+      return departments;
+    }
+
+    function populateRecipientDropdown() {
+      const recipientSelect = document.getElementById('recipient');
+      recipientSelect.innerHTML = '<option value="">Select Department</option>';
+
+      const departments = JSON.parse(localStorage.getItem('departments') || '[]');
+      
+      if (departments.length === 0) {
+        const noOption = document.createElement('option');
+        noOption.value = '';
+        noOption.textContent = 'No departments available';
+        recipientSelect.disabled = true;
+        return;
+      }
+
+      recipientSelect.disabled = false;
+
+      // Add departments as recipients
+      departments.forEach(dept => {
+        if (dept.status === 'Active') {
+          const option = document.createElement('option');
+          option.value = dept.username.toLowerCase();
+          option.textContent = `${dept.departmentName} (${dept.accountName})`;
+          recipientSelect.appendChild(option);
+        }
+      });
+
+      // Add admin as recipient if it exists
+      const adminDept = departments.find(dept => dept.role === 'admin');
+      if (adminDept) {
+        const adminOption = document.createElement('option');
+        adminOption.value = adminDept.username.toLowerCase();
+        adminOption.textContent = `${adminDept.departmentName} (${adminDept.accountName})`;
+        recipientSelect.appendChild(adminOption);
+      }
+    }
+
+    function loadRecentDocuments() {
+      const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      const currentUser = localStorage.getItem('username');
+      const recentDocs = documents
+        .filter(doc => doc.sender.toLowerCase() === currentUser.toLowerCase())
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+
+      const recentList = document.getElementById('recentDocumentsList');
+      recentList.innerHTML = '';
+
+      if (recentDocs.length === 0) {
+        recentList.innerHTML = '<div class="document-item">No recent documents</div>';
+        return;
+      }
+
+      recentDocs.forEach(doc => {
+        const docElement = document.createElement('div');
+        docElement.className = 'document-item';
+        docElement.innerHTML = `
+          <div class="document-info">
+            <strong>${doc.docName}</strong>
+            <div>To: ${doc.recipient}</div>
+            <div>Date: ${doc.date}</div>
+          </div>
+          <span class="document-status status-${doc.status.toLowerCase()}">${doc.status}</span>
+        `;
+        recentList.appendChild(docElement);
+      });
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      
+      const docName = document.getElementById('docName').value.trim();
+      const transmitNumber = document.getElementById('transmitNumber').value.trim();
+      const recipient = document.getElementById('recipient').value;
+      const file = document.getElementById('file').files[0];
+
+      // Clear previous errors
+      document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+
+      // Validate inputs
+      let hasError = false;
+      if (!docName) {
+        document.getElementById('docNameError').textContent = 'Please enter a document name';
+        hasError = true;
+      }
+      if (!transmitNumber) {
+        document.getElementById('transmitNumberError').textContent = 'Please enter a transmit number';
+        hasError = true;
+      }
+      if (!recipient) {
+        document.getElementById('recipientError').textContent = 'Please select a recipient';
+        hasError = true;
+      }
+      if (!file) {
+        document.getElementById('fileError').textContent = 'Please select a PDF file';
+        hasError = true;
+      } else if (file.type !== 'application/pdf') {
+        document.getElementById('fileError').textContent = 'Please upload a PDF file';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Read the file and create document
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const fileContent = e.target.result;
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Create new document object
+        const newDoc = {
+          docName,
+          transmitNumber,
+          sender: localStorage.getItem('username'),
+          recipient,
+          date: today,
+          status: 'Pending',
+          fileContent,
+          senderRole: localStorage.getItem('userRole')
+        };
+
+        // Get existing documents and add new one
+        const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+        documents.push(newDoc);
+        
+        // Save to localStorage
+        localStorage.setItem('documents', JSON.stringify(documents));
+        
+        // Show success message
+        showNotification(`Document "${docName}" sent successfully to ${recipient}!`, 'success');
+        
+        // Reset form
+        document.getElementById('senderForm').reset();
+        
+        // Refresh recent documents list
+        loadRecentDocuments();
+      };
+      
+      reader.readAsDataURL(file);
+    }
+
+    function handleBack() {
+      window.location.href = 'admin-dashboard.html';
+    }
+
+    function logout() {
+      // Save documents before logout
+      const documents = localStorage.getItem('documents');
+      
+      // Only remove login-related items
+      localStorage.removeItem('loggedIn');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('username');
+      localStorage.removeItem('lastNotificationCheck');
+      
+      // Restore documents after clearing login data
+      if (documents) {
+        localStorage.setItem('documents', documents);
+      }
+      
+      window.location.href = 'index.html';
+    }
+
+    // Check login session and role
+    const username = localStorage.getItem('username');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (!username || (userRole !== 'staff' && userRole !== 'admin' && userRole !== 'department')) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
+      initializeDepartments();
+      populateRecipientDropdown();
+      loadRecentDocuments();
+    }
+
+    // Initialize notifications
+    document.addEventListener('DOMContentLoaded', () => {
+      checkNotifications();
+      // Check for new notifications every 30 seconds
+      setInterval(checkNotifications, 30000);
+    });
+
+    // Function to check for new notifications
+    function checkNotifications() {
+      const currentUser = localStorage.getItem('username');
+      const userRole = localStorage.getItem('userRole');
+      const lastCheck = localStorage.getItem('lastNotificationCheck') || '0';
+      const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      
+      // Filter documents that are newer than last check
+      const newDocs = documents.filter(doc => {
+        const docDate = new Date(doc.date).getTime();
+        return docDate > parseInt(lastCheck) && doc.sender.toLowerCase() === currentUser.toLowerCase();
+      });
+      
+      // Show notifications for new documents
+      newDocs.forEach(doc => {
+        showNotification(`Document "${doc.docName}" has been ${doc.status.toLowerCase()} by ${doc.recipient}`, 
+          doc.status === 'Received' ? 'success' : 
+          doc.status === 'Declined' ? 'error' : 
+          'info'
+        );
+      });
+      
+      // Update last check time
+      localStorage.setItem('lastNotificationCheck', Date.now().toString());
+    }
+  </script>
+</body>
+</html>
